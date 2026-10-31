@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Layers, ArrowRight, Lock, Mail, AlertCircle, ShieldAlert } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { Sun, Moon, ArrowRight, AlertCircle } from 'lucide-react';
 
 export const Login = ({ onSwitchToRegister, onSwitchToForgot }) => {
   const { login } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [email, setEmail] = useState('admin@brightloop.io');
   const [password, setPassword] = useState('AdminPassword123!');
   const [loading, setLoading] = useState(false);
@@ -28,121 +30,128 @@ export const Login = ({ onSwitchToRegister, onSwitchToForgot }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo and Brand */}
-        <div className="text-center mb-8">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white shadow-xl shadow-brand-500/25 mb-4">
-            <Layers className="h-8 w-8" />
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 transition-colors">
+      {/* Top right theme switch */}
+      <div className="absolute top-4 right-4">
+        <button
+          onClick={toggleTheme}
+          title="Toggle Light / Dark mode"
+          className="p-2 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-colors shadow-sm"
+        >
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+      </div>
+
+      <div className="w-full max-w-sm">
+        {/* Brand */}
+        <div className="text-center mb-6">
+          <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-base mb-3 shadow-sm">
+            B
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Brightloop Software</h1>
-          <p className="text-slate-400 text-sm mt-1">Enterprise Subscription Management System</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Brightloop Software
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+            Subscription Management System
+          </p>
         </div>
 
         {/* Card */}
-        <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-slate-800">
-          <h2 className="text-xl font-bold text-white mb-2">Sign In to Your Workspace</h2>
-          <p className="text-slate-400 text-xs mb-6">Enter your credentials or choose a pre-seeded account below</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">
+            Sign In to Account
+          </h2>
 
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2 text-rose-300 text-sm">
-              <AlertCircle size={18} className="flex-shrink-0" />
+            <div className="mb-4 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-center gap-2 text-rose-700 dark:text-rose-300 text-xs">
+              <AlertCircle size={15} className="flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-3 text-slate-500 h-4 w-4" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@brightloop.io"
-                  className="w-full rounded-xl bg-slate-900/80 border border-slate-700/80 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                />
-              </div>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@brightloop.io"
+                className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
+              />
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={onSwitchToForgot}
-                  className="text-xs text-brand-400 hover:text-brand-300 transition-colors"
+                  className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   Forgot Password?
                 </button>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-3 text-slate-500 h-4 w-4" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full rounded-xl bg-slate-900/80 border border-slate-700/80 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                />
-              </div>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 font-mono"
+              />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full mt-2 py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
             >
-              {loading ? 'Authenticating...' : 'Sign In'}
-              <ArrowRight size={16} />
+              <span>{loading ? 'Signing in...' : 'Sign In'}</span>
+              <ArrowRight size={14} />
             </button>
           </form>
 
-          {/* Quick Demo Pre-seed logins */}
-          <div className="mt-6 pt-5 border-t border-slate-800">
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 text-center">
-              Quick One-Click Demo Logins
-            </p>
-            <div className="grid grid-cols-3 gap-2">
+          {/* Quick Demo Credentials */}
+          <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800">
+            <span className="text-[11px] font-medium text-slate-500 block mb-2 text-center">
+              Quick Demo Logins
+            </span>
+            <div className="grid grid-cols-3 gap-1.5">
               <button
                 type="button"
                 onClick={() => handleQuickFill('admin@brightloop.io', 'AdminPassword123!')}
-                className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left transition-colors"
+                className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 transition-colors text-center"
               >
-                <div className="text-xs font-bold text-violet-400">Admin</div>
-                <div className="text-[10px] text-slate-400 truncate">admin@brightloop</div>
+                Admin
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickFill('staff@brightloop.io', 'StaffPassword123!')}
-                className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left transition-colors"
+                className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 transition-colors text-center"
               >
-                <div className="text-xs font-bold text-cyan-400">Staff</div>
-                <div className="text-[10px] text-slate-400 truncate">staff@brightloop</div>
+                Staff
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickFill('alice@acmecorp.com', 'CustomerPass123!')}
-                className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left transition-colors"
+                className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 transition-colors text-center"
               >
-                <div className="text-xs font-bold text-indigo-400">Customer</div>
-                <div className="text-[10px] text-slate-400 truncate">alice@acmecorp</div>
+                Customer
               </button>
             </div>
           </div>
 
-          <div className="mt-6 text-center text-xs text-slate-400">
-            Don't have an account yet?{' '}
+          <div className="mt-4 text-center text-xs text-slate-500">
+            Need an account?{' '}
             <button
               onClick={onSwitchToRegister}
-              className="text-brand-400 hover:text-brand-300 font-semibold"
+              className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
             >
               Register here
             </button>

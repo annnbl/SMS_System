@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { Modal } from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
-import { Package, Plus, Trash2, Edit2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Edit2 } from 'lucide-react';
 
 export const Products = () => {
   const { user } = useAuth();
@@ -19,7 +19,6 @@ export const Products = () => {
   const [notes, setNotes] = useState('');
   const [variants, setVariants] = useState([]);
 
-  // New variant temp inputs
   const [varAttribute, setVarAttribute] = useState('Brand');
   const [varValue, setVarValue] = useState('');
   const [varExtraPrice, setVarExtraPrice] = useState('');
@@ -118,7 +117,7 @@ export const Products = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to deactivate this product?')) return;
+    if (!window.confirm('Deactivate this product?')) return;
     try {
       await api.delete(`/products/${id}`);
       fetchProducts();
@@ -128,66 +127,68 @@ export const Products = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Products & Variants</h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Software licenses, services, and attribute variants (e.g., Odoo Brand +$560)
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Products & Variants
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Software licenses, services, and attribute variants (e.g. Brand: Odoo +$560)
           </p>
         </div>
 
         {isAdmin && (
           <button
             onClick={openNewModal}
-            className="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all shadow-lg shadow-brand-500/25 flex items-center gap-2"
+            className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors flex items-center gap-1.5 shadow-sm"
           >
-            <Plus size={16} />
+            <Plus size={15} />
             <span>Add Product</span>
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {loading ? (
-          <div className="col-span-3 text-center py-12 text-slate-400">Loading catalog...</div>
+          <div className="col-span-3 text-center py-8 text-xs text-slate-400">Loading catalog...</div>
         ) : products.length === 0 ? (
-          <div className="col-span-3 text-center py-12 text-slate-400">No products configured yet.</div>
+          <div className="col-span-3 text-center py-8 text-xs text-slate-400">No products configured.</div>
         ) : (
           products.map((p) => (
             <div
               key={p._id}
-              className="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all shadow-lg"
+              className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                       {p.type}
                     </span>
-                    <h3 className="text-base font-bold text-white mt-2">{p.name}</h3>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1.5">{p.name}</h3>
                   </div>
 
                   {isAdmin && (
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => openEditModal(p)}
-                        className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+                        className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded"
                       >
-                        <Edit2 size={14} />
+                        <Edit2 size={13} />
                       </button>
                       <button
                         onClick={() => handleDelete(p._id)}
-                        className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10"
+                        className="p-1 text-slate-400 hover:text-rose-600 rounded"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   )}
                 </div>
 
-                <div className="mt-4 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-white">
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-xl font-bold text-slate-900 dark:text-white">
                     ${p.salesPrice?.toFixed(2)}
                   </span>
                   {p.costPrice > 0 && (
@@ -197,28 +198,28 @@ export const Products = () => {
                   )}
                 </div>
 
-                <p className="text-xs text-slate-400 mt-2 line-clamp-2">
-                  {p.notes || 'No notes provided.'}
+                <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                  {p.notes || 'No notes.'}
                 </p>
 
-                {/* Variants List */}
-                <div className="mt-4 pt-3 border-t border-slate-800">
-                  <span className="text-[11px] font-semibold text-slate-300 block mb-1.5">
-                    Configured Variants ({p.variants?.length || 0}):
+                {/* Variants */}
+                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                  <span className="text-[11px] font-medium text-slate-500 block mb-1">
+                    Variants ({p.variants?.length || 0}):
                   </span>
                   {p.variants?.length === 0 ? (
-                    <span className="text-[11px] text-slate-500 italic">Standard base variant only</span>
+                    <span className="text-xs text-slate-400 italic">Base item only</span>
                   ) : (
                     <div className="space-y-1">
                       {p.variants.map((v, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center justify-between text-[11px] p-1.5 rounded-lg bg-slate-900/60 border border-slate-800/80"
+                          className="flex items-center justify-between text-xs p-1.5 rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800"
                         >
-                          <span className="text-slate-300 font-medium">
+                          <span className="text-slate-700 dark:text-slate-300 font-medium">
                             {v.attribute}: {v.value}
                           </span>
-                          <span className="text-brand-400 font-mono font-bold">
+                          <span className="text-blue-600 dark:text-blue-400 font-mono font-semibold">
                             +${v.extraPrice}
                           </span>
                         </div>
@@ -232,39 +233,43 @@ export const Products = () => {
         )}
       </div>
 
-      {/* Modal create / edit */}
+      {/* Modal */}
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingProduct ? 'Edit Product & Pricing' : 'Add New Software Product'}
-        maxWidth="max-w-xl"
+        title={editingProduct ? 'Edit Product' : 'Add Product'}
+        maxWidth="max-w-lg"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Product Name *</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Product Name *
+            </label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. BrightCloud ERP Suite"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Type *</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Type
+              </label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+                className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
               >
                 <option value="software">Software</option>
                 <option value="service">Service</option>
@@ -273,7 +278,9 @@ export const Products = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Sales Price ($) *</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Sales Price ($) *
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -281,87 +288,90 @@ export const Products = () => {
                 value={salesPrice}
                 onChange={(e) => setSalesPrice(e.target.value)}
                 placeholder="1200"
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white font-mono"
+                className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white font-mono"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Cost Price ($)</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Cost Price ($)
+              </label>
               <input
                 type="number"
                 step="0.01"
                 value={costPrice}
                 onChange={(e) => setCostPrice(e.target.value)}
                 placeholder="300"
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white font-mono"
+                className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white font-mono"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Product Notes</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Notes
+            </label>
             <textarea
               rows="2"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Features, technical notes, deployment details..."
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2 text-xs text-white"
+              placeholder="Features and technical specifications..."
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             />
           </div>
 
-          {/* Variants Builder */}
-          <div className="pt-3 border-t border-slate-800">
-            <span className="text-xs font-semibold text-slate-300 block mb-2">
-              Attribute Variants (e.g. Brand: Odoo adds +$560)
+          {/* Variants */}
+          <div className="pt-2.5 border-t border-slate-200 dark:border-slate-800">
+            <span className="text-xs font-medium text-slate-700 dark:text-slate-300 block mb-1.5">
+              Attribute Variants (e.g. Brand: Odoo +$560)
             </span>
 
-            <div className="grid grid-cols-4 gap-2 mb-3">
+            <div className="grid grid-cols-4 gap-2 mb-2">
               <input
                 type="text"
-                placeholder="Attribute (e.g. Brand)"
+                placeholder="Attribute"
                 value={varAttribute}
                 onChange={(e) => setVarAttribute(e.target.value)}
-                className="rounded-xl bg-slate-900 border border-slate-700 p-2 text-xs text-white"
+                className="rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-1.5 text-xs text-slate-900 dark:text-white"
               />
               <input
                 type="text"
-                placeholder="Value (e.g. Odoo)"
+                placeholder="Value"
                 value={varValue}
                 onChange={(e) => setVarValue(e.target.value)}
-                className="rounded-xl bg-slate-900 border border-slate-700 p-2 text-xs text-white"
+                className="rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-1.5 text-xs text-slate-900 dark:text-white"
               />
               <input
                 type="number"
-                placeholder="+Extra Price"
+                placeholder="+Extra $"
                 value={varExtraPrice}
                 onChange={(e) => setVarExtraPrice(e.target.value)}
-                className="rounded-xl bg-slate-900 border border-slate-700 p-2 text-xs text-white font-mono"
+                className="rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-1.5 text-xs text-slate-900 dark:text-white font-mono"
               />
               <button
                 type="button"
                 onClick={handleAddVariant}
-                className="rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-white font-semibold flex items-center justify-center gap-1"
+                className="rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300"
               >
-                <Plus size={14} />
-                <span>Add</span>
+                Add
               </button>
             </div>
 
             {variants.length > 0 && (
-              <div className="space-y-1.5 max-h-36 overflow-y-auto">
+              <div className="space-y-1 max-h-32 overflow-y-auto">
                 {variants.map((v, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800 text-xs"
+                    className="flex items-center justify-between p-1.5 rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs"
                   >
                     <span>
-                      <strong className="text-white">{v.attribute}:</strong> {v.value} (+${v.extraPrice})
+                      {v.attribute}: {v.value} (+${v.extraPrice})
                     </span>
                     <button
                       type="button"
                       onClick={() => handleRemoveVariant(i)}
-                      className="text-slate-400 hover:text-rose-400"
+                      className="text-slate-400 hover:text-rose-600"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={12} />
                     </button>
                   </div>
                 ))}
@@ -369,15 +379,13 @@ export const Products = () => {
             )}
           </div>
 
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors shadow-lg shadow-brand-500/25 disabled:opacity-50"
-            >
-              {submitting ? 'Saving...' : editingProduct ? 'Update Product' : 'Create Product'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors disabled:opacity-50"
+          >
+            {submitting ? 'Saving...' : editingProduct ? 'Update Product' : 'Create Product'}
+          </button>
         </form>
       </Modal>
     </div>

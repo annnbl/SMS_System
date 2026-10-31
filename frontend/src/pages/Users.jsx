@@ -3,7 +3,7 @@ import { api } from '../services/api';
 import { Badge } from '../components/Badge';
 import { Modal } from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
-import { Users as UsersIcon, UserPlus, Search, ShieldCheck } from 'lucide-react';
+import { UserPlus, Search } from 'lucide-react';
 
 export const Users = () => {
   const { user: currentUser } = useAuth();
@@ -15,7 +15,6 @@ export const Users = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Creation modals
   const [staffModalOpen, setStaffModalOpen] = useState(false);
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
 
@@ -91,12 +90,14 @@ export const Users = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">User Management</h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Internal operators, staff members, and client subscriber accounts
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Users & Staff
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Internal operators, staff accounts, and client directory
           </p>
         </div>
 
@@ -107,10 +108,9 @@ export const Users = () => {
                 resetForm();
                 setStaffModalOpen(true);
               }}
-              className="px-3.5 py-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600 text-cyan-200 hover:text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-cyan-500/30"
+              className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-medium text-xs transition-colors border border-slate-300 dark:border-slate-700"
             >
-              <ShieldCheck size={16} />
-              <span>Create Staff</span>
+              Add Staff
             </button>
           )}
 
@@ -119,83 +119,75 @@ export const Users = () => {
               resetForm();
               setCustomerModalOpen(true);
             }}
-            className="px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-lg shadow-brand-500/25"
+            className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors flex items-center gap-1 shadow-sm"
           >
-            <UserPlus size={16} />
+            <UserPlus size={14} />
             <span>Add Customer</span>
           </button>
         </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="glass-card rounded-2xl p-4 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-2.5 text-slate-500 h-4 w-4" />
+      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2.5 shadow-sm">
+        <div className="relative w-full max-w-xs">
+          <Search className="absolute left-2.5 top-2.5 text-slate-400 h-3.5 w-3.5" />
           <input
             type="text"
-            placeholder="Search by name, email, company..."
+            placeholder="Search name, email, company..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl bg-slate-900 border border-slate-700/80 pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+            className="w-full rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
           />
         </div>
 
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="rounded-xl bg-slate-900 border border-slate-700/80 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+          className="rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-600"
         >
           <option value="">All Roles</option>
           <option value="admin">Admins</option>
-          <option value="staff">Internal Staff</option>
+          <option value="staff">Staff</option>
           <option value="customer">Customers</option>
         </select>
       </div>
 
-      {/* Table */}
-      <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-900/60 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                <th className="py-3 px-4">Name</th>
-                <th className="py-3 px-4">Email</th>
-                <th className="py-3 px-4">Role</th>
-                <th className="py-3 px-4">Company</th>
-                <th className="py-3 px-4">Phone</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Created Date</th>
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase tracking-wider text-[11px] font-medium">
+                <th className="py-2.5 px-3">Name</th>
+                <th className="py-2.5 px-3">Email</th>
+                <th className="py-2.5 px-3">Role</th>
+                <th className="py-2.5 px-3">Company</th>
+                <th className="py-2.5 px-3">Phone</th>
+                <th className="py-2.5 px-3">Status</th>
+                <th className="py-2.5 px-3">Created</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-xs">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-400 animate-pulse">
-                    Loading users...
-                  </td>
+                  <td colSpan="7" className="py-8 text-center text-slate-400">Loading users...</td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-400">
-                    No users found matching query.
-                  </td>
+                  <td colSpan="7" className="py-8 text-center text-slate-400">No users found.</td>
                 </tr>
               ) : (
                 users.map((u) => (
-                  <tr key={u._id} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="py-3.5 px-4 font-semibold text-white">{u.name}</td>
-                    <td className="py-3.5 px-4 text-slate-300 font-mono text-[11px]">{u.email}</td>
-                    <td className="py-3.5 px-4">
+                  <tr key={u._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                    <td className="py-3 px-3 font-semibold text-slate-900 dark:text-white">{u.name}</td>
+                    <td className="py-3 px-3 text-slate-500 font-mono text-[11px]">{u.email}</td>
+                    <td className="py-3 px-3">
                       <Badge status={u.role}>{u.role}</Badge>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400">{u.company || '—'}</td>
-                    <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
-                      {u.phone || '—'}
+                    <td className="py-3 px-3 text-slate-600 dark:text-slate-400">{u.company || '—'}</td>
+                    <td className="py-3 px-3 text-slate-500 font-mono text-[11px]">{u.phone || '—'}</td>
+                    <td className="py-3 px-3">
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">Active</span>
                     </td>
-                    <td className="py-3.5 px-4">
-                      <span className="text-emerald-400 font-medium">Active</span>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
+                    <td className="py-3 px-3 text-slate-400 font-mono text-[11px]">
                       {new Date(u.createdAt).toLocaleDateString()}
                     </td>
                   </tr>
@@ -205,13 +197,13 @@ export const Users = () => {
           </table>
         </div>
 
-        <div className="p-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 bg-slate-900/30">
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 bg-slate-50 dark:bg-slate-950">
           <span>Total: {total} accounts</span>
           <div className="flex items-center gap-2">
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-40"
+              className="px-2 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40"
             >
               Prev
             </button>
@@ -219,7 +211,7 @@ export const Users = () => {
             <button
               disabled={page * 10 >= total}
               onClick={() => setPage(page + 1)}
-              className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-40"
+              className="px-2 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40"
             >
               Next
             </button>
@@ -227,74 +219,79 @@ export const Users = () => {
         </div>
       </div>
 
-      {/* Create Staff Modal (Admin Only) */}
+      {/* Create Staff Modal */}
       <Modal
         isOpen={staffModalOpen}
         onClose={() => setStaffModalOpen(false)}
-        title="Create Internal Staff Account"
+        title="Create Staff Member"
         maxWidth="max-w-md"
       >
-        <form onSubmit={handleCreateStaff} className="space-y-4">
+        <form onSubmit={handleCreateStaff} className="space-y-3.5">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Staff Name *</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Staff Name *
+            </label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Sarah Connor"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Staff Email *</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Email Address *
+            </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="staff@brightloop.io"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Temporary Password *</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Password *
+            </label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="StaffPassword123!"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white font-mono"
             />
-            <p className="text-[10px] text-slate-500 mt-1">
-              Must be &gt;8 chars with uppercase, lowercase, and special character.
-            </p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Phone
+            </label>
             <input
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+1 (555) 000-0000"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-colors shadow-lg shadow-cyan-500/25 disabled:opacity-50"
+            className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors disabled:opacity-50"
           >
             {submitting ? 'Creating...' : 'Create Staff Member'}
           </button>
@@ -305,69 +302,77 @@ export const Users = () => {
       <Modal
         isOpen={customerModalOpen}
         onClose={() => setCustomerModalOpen(false)}
-        title="Add New Customer Account"
+        title="Add Customer"
         maxWidth="max-w-md"
       >
-        <form onSubmit={handleCreateCustomer} className="space-y-4">
+        <form onSubmit={handleCreateCustomer} className="space-y-3.5">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Contact Name *</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Contact Name *
+            </label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Alice Johnson"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Email *</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Email *
+            </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="alice@acmecorp.com"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Company Name</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Company
+            </label>
             <input
               type="text"
               value={company}
               onChange={(e) => setCompany(e.target.value)}
               placeholder="Acme Corporation"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Initial Password *</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Password *
+            </label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="CustomerPass123!"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white font-mono"
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors shadow-lg shadow-brand-500/25 disabled:opacity-50"
+            className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors disabled:opacity-50"
           >
-            {submitting ? 'Creating...' : 'Create Customer Account'}
+            {submitting ? 'Creating...' : 'Create Customer'}
           </button>
         </form>
       </Modal>

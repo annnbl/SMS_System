@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { CreditCard, Search, Calendar, CheckCircle } from 'lucide-react';
 
 export const Payments = () => {
   const [payments, setPayments] = useState([]);
@@ -28,64 +27,62 @@ export const Payments = () => {
   }, [page]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-extrabold text-white tracking-tight">Payment Receipts</h1>
-        <p className="text-xs text-slate-400 mt-0.5">
-          Audited log of all processed subscription payments and customer transactions
+        <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Payments
+        </h1>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          Audited transaction log of settled subscription invoices
         </p>
       </div>
 
-      <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-900/60 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                <th className="py-3 px-4">Receipt #</th>
-                <th className="py-3 px-4">Customer</th>
-                <th className="py-3 px-4">Invoice #</th>
-                <th className="py-3 px-4">Method</th>
-                <th className="py-3 px-4">Reference</th>
-                <th className="py-3 px-4">Date</th>
-                <th className="py-3 px-4 text-right">Amount Paid</th>
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase tracking-wider text-[11px] font-medium">
+                <th className="py-2.5 px-3">Receipt #</th>
+                <th className="py-2.5 px-3">Customer</th>
+                <th className="py-2.5 px-3">Invoice #</th>
+                <th className="py-2.5 px-3">Method</th>
+                <th className="py-2.5 px-3">Reference</th>
+                <th className="py-2.5 px-3">Date</th>
+                <th className="py-2.5 px-3 text-right">Amount Paid</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-xs">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-400 animate-pulse">
-                    Loading payments...
-                  </td>
+                  <td colSpan="7" className="py-8 text-center text-slate-400">Loading payments...</td>
                 </tr>
               ) : payments.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-400">
-                    No payment records found.
-                  </td>
+                  <td colSpan="7" className="py-8 text-center text-slate-400">No payment records found.</td>
                 </tr>
               ) : (
                 payments.map((p) => (
-                  <tr key={p._id} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-white">
+                  <tr key={p._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                    <td className="py-3 px-3 font-mono font-medium text-slate-900 dark:text-white">
                       {p.paymentNumber}
                     </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-slate-200">{p.customer?.name}</div>
+                    <td className="py-3 px-3">
+                      <div className="font-medium text-slate-900 dark:text-white">{p.customer?.name}</div>
                       <div className="text-[11px] text-slate-400">{p.customer?.company}</div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-300">
+                    <td className="py-3 px-3 font-mono text-slate-600 dark:text-slate-400">
                       {p.invoice?.invoiceNumber || 'N/A'}
                     </td>
-                    <td className="py-3.5 px-4 capitalize text-slate-300">
+                    <td className="py-3 px-3 capitalize text-slate-600 dark:text-slate-400">
                       {p.method?.replace('_', ' ')}
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
+                    <td className="py-3 px-3 font-mono text-[11px] text-slate-500">
                       {p.referenceNumber || '—'}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
+                    <td className="py-3 px-3 text-slate-500 font-mono text-[11px]">
                       {new Date(p.paymentDate).toLocaleDateString()}
                     </td>
-                    <td className="py-3.5 px-4 text-right font-bold text-emerald-400 text-sm">
+                    <td className="py-3 px-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">
                       +${p.amount?.toFixed(2)}
                     </td>
                   </tr>
@@ -95,13 +92,13 @@ export const Payments = () => {
           </table>
         </div>
 
-        <div className="p-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 bg-slate-900/30">
-          <span>Total: {total} payments recorded</span>
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 bg-slate-50 dark:bg-slate-950">
+          <span>Total: {total} payments</span>
           <div className="flex items-center gap-2">
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-40"
+              className="px-2 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40"
             >
               Prev
             </button>
@@ -109,7 +106,7 @@ export const Payments = () => {
             <button
               disabled={page * 10 >= total}
               onClick={() => setPage(page + 1)}
-              className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-40"
+              className="px-2 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40"
             >
               Next
             </button>

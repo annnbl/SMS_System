@@ -3,21 +3,7 @@ import { api } from '../services/api';
 import { Badge } from '../components/Badge';
 import { Modal } from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
-import {
-  Repeat,
-  Plus,
-  Search,
-  Filter,
-  CheckCircle,
-  Clock,
-  History,
-  FileText,
-  RotateCw,
-  AlertCircle,
-  Tag,
-  ChevronRight,
-  ShieldAlert,
-} from 'lucide-react';
+import { Plus, Search, Filter, History } from 'lucide-react';
 
 export const Subscriptions = () => {
   const { user } = useAuth();
@@ -41,14 +27,10 @@ export const Subscriptions = () => {
   const [customers, setCustomers] = useState([]);
   const [plans, setPlans] = useState([]);
   const [templates, setTemplates] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [discounts, setDiscounts] = useState([]);
-
   const [formCustomer, setFormCustomer] = useState('');
   const [formPlan, setFormPlan] = useState('');
   const [formTemplate, setFormTemplate] = useState('');
   const [formDiscountCode, setFormDiscountCode] = useState('');
-  const [formLines, setFormLines] = useState([]);
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState('');
 
@@ -78,16 +60,14 @@ export const Subscriptions = () => {
     setCreateError('');
     setCreateModalOpen(true);
     try {
-      const [custRes, planRes, tmplRes, prodRes] = await Promise.all([
+      const [custRes, planRes, tmplRes] = await Promise.all([
         api.get('/users?role=customer&limit=50'),
         api.get('/plans'),
         api.get('/quotation-templates'),
-        api.get('/products?limit=50'),
       ]);
       setCustomers(custRes.data || []);
       setPlans(planRes.data || []);
       setTemplates(tmplRes.data || []);
-      setProducts(prodRes.data || []);
       if (custRes.data?.[0]) setFormCustomer(custRes.data[0]._id);
       if (planRes.data?.[0]) setFormPlan(planRes.data[0]._id);
     } catch (err) {
@@ -151,21 +131,10 @@ export const Subscriptions = () => {
     }
   };
 
-  const handleRenew = async (subId) => {
-    try {
-      await api.post(`/subscriptions/${subId}/renew`, {});
-      setActionFeedback('Subscription successfully renewed.');
-      setTimeout(() => setActionFeedback(''), 4000);
-      fetchSubscriptions();
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
   const handleGenerateInvoiceNow = async (subId) => {
     try {
       const res = await api.post(`/invoices/generate/${subId}`, {});
-      setActionFeedback(`Invoice ${res.data?.invoiceNumber || ''} generated successfully!`);
+      setActionFeedback(`Invoice ${res.data?.invoiceNumber || ''} generated.`);
       setTimeout(() => setActionFeedback(''), 4000);
       fetchSubscriptions();
     } catch (err) {
@@ -174,60 +143,55 @@ export const Subscriptions = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Subscriptions</h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Manage contract life cycles from Draft to Quotation, Confirmation, and Active renewals
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Subscriptions
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Contracts, lifecycle transitions, and renewal policies
           </p>
         </div>
 
         {user?.role !== 'customer' && (
           <button
             onClick={openCreateModal}
-            className="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all shadow-lg shadow-brand-500/25 flex items-center gap-2"
+            className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors flex items-center gap-1.5 shadow-sm"
           >
-            <Plus size={16} />
+            <Plus size={15} />
             <span>New Subscription</span>
           </button>
         )}
       </div>
 
       {actionFeedback && (
-        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 font-medium">
-          <CheckCircle size={16} />
-          <span>{actionFeedback}</span>
+        <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs">
+          {actionFeedback}
         </div>
       )}
 
-      {/* Filter Toolbar */}
-      <div className="glass-card rounded-2xl p-4 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 flex-1 min-w-[220px]">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-2.5 text-slate-500 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Search subscription number..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl bg-slate-900 border border-slate-700/80 pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
-            />
-          </div>
+      {/* Filter toolbar */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2.5 shadow-sm">
+        <div className="relative w-full max-w-xs">
+          <Search className="absolute left-2.5 top-2.5 text-slate-400 h-3.5 w-3.5" />
+          <input
+            type="text"
+            placeholder="Search subscription number..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
+          />
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-xs text-slate-400">
-            <Filter size={14} />
-            <span>Status:</span>
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500">Status:</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl bg-slate-900 border border-slate-700/80 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+            className="rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-600"
           >
-            <option value="">All Statuses</option>
+            <option value="">All</option>
             <option value="Draft">Draft</option>
             <option value="Quotation">Quotation</option>
             <option value="Confirmed">Confirmed</option>
@@ -238,87 +202,83 @@ export const Subscriptions = () => {
         </div>
       </div>
 
-      {/* Table List */}
-      <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+      {/* Table */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-900/60 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                <th className="py-3 px-4">Subscription #</th>
-                <th className="py-3 px-4">Customer</th>
-                <th className="py-3 px-4">Plan</th>
-                <th className="py-3 px-4">Billing Period</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Total Amount</th>
-                <th className="py-3 px-4">Next Invoice</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase tracking-wider text-[11px] font-medium">
+                <th className="py-2.5 px-3">Subscription #</th>
+                <th className="py-2.5 px-3">Customer</th>
+                <th className="py-2.5 px-3">Plan</th>
+                <th className="py-2.5 px-3">Period</th>
+                <th className="py-2.5 px-3">Status</th>
+                <th className="py-2.5 px-3">Total Amount</th>
+                <th className="py-2.5 px-3">Next Invoice</th>
+                <th className="py-2.5 px-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-xs">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="py-8 text-center text-slate-400 animate-pulse">
+                  <td colSpan="8" className="py-8 text-center text-slate-400">
                     Loading subscriptions...
                   </td>
                 </tr>
               ) : subscriptions.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="py-8 text-center text-slate-400">
-                    No subscriptions found matching criteria.
+                    No subscriptions found.
                   </td>
                 </tr>
               ) : (
                 subscriptions.map((sub) => (
-                  <tr key={sub._id} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-white">
+                  <tr key={sub._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                    <td className="py-3 px-3 font-mono font-medium text-slate-900 dark:text-white">
                       {sub.subscriptionNumber}
                     </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-slate-200">{sub.customer?.name}</div>
-                      <div className="text-[11px] text-slate-400 truncate max-w-[150px]">
+                    <td className="py-3 px-3">
+                      <div className="font-medium text-slate-900 dark:text-white">
+                        {sub.customer?.name}
+                      </div>
+                      <div className="text-[11px] text-slate-400 truncate max-w-[140px]">
                         {sub.customer?.company || sub.customer?.email}
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-300 font-medium">
+                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300">
                       {sub.plan?.name || 'Custom Plan'}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400 capitalize">
+                    <td className="py-3 px-3 text-slate-500 capitalize">
                       {sub.plan?.billingPeriod || 'monthly'}
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3 px-3">
                       <Badge status={sub.status} />
                     </td>
-                    <td className="py-3.5 px-4 font-semibold text-white">
+                    <td className="py-3 px-3 font-semibold text-slate-900 dark:text-white">
                       ${sub.totalAmount?.toFixed(2)}
-                      {sub.discountAmount > 0 && (
-                        <span className="block text-[10px] text-emerald-400">
-                          -${sub.discountAmount?.toFixed(2)} disc
-                        </span>
-                      )}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
+                    <td className="py-3 px-3 text-slate-500 font-mono text-[11px]">
                       {sub.nextInvoiceDate
                         ? new Date(sub.nextInvoiceDate).toLocaleDateString()
                         : '—'}
                     </td>
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-3 px-3 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => setDetailSub(sub)}
-                          className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                          className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium"
                         >
                           Details
                         </button>
 
                         {user?.role !== 'customer' && (
                           <>
-                            {/* Status Flow transitions */}
                             <button
                               onClick={() => {
                                 setTransitionModalSub(sub);
                                 setTargetStatus('');
                               }}
-                              className="px-2.5 py-1 rounded-lg bg-brand-600/30 hover:bg-brand-600 text-brand-200 hover:text-white text-xs font-medium transition-colors"
+                              className="px-2 py-1 rounded bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-medium"
                             >
                               Transition
                             </button>
@@ -326,8 +286,7 @@ export const Subscriptions = () => {
                             {sub.status === 'Active' && (
                               <button
                                 onClick={() => handleGenerateInvoiceNow(sub._id)}
-                                title="Bill Now"
-                                className="px-2.5 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white text-xs font-medium transition-colors"
+                                className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium"
                               >
                                 Bill Now
                               </button>
@@ -343,14 +302,13 @@ export const Subscriptions = () => {
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="p-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 bg-slate-900/30">
-          <span>Total: {total} subscriptions</span>
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 bg-slate-50 dark:bg-slate-950">
+          <span>Total: {total} contracts</span>
           <div className="flex items-center gap-2">
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-40"
+              className="px-2 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40"
             >
               Prev
             </button>
@@ -358,7 +316,7 @@ export const Subscriptions = () => {
             <button
               disabled={page * 10 >= total}
               onClick={() => setPage(page + 1)}
-              className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-40"
+              className="px-2 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40"
             >
               Next
             </button>
@@ -366,31 +324,32 @@ export const Subscriptions = () => {
         </div>
       </div>
 
-      {/* Detail Modal with Status History Log */}
+      {/* Details Modal */}
       <Modal
         isOpen={!!detailSub}
         onClose={() => setDetailSub(null)}
-        title={`Subscription Details: ${detailSub?.subscriptionNumber}`}
-        maxWidth="max-w-3xl"
+        title={`Subscription: ${detailSub?.subscriptionNumber}`}
+        maxWidth="max-w-2xl"
       >
         {detailSub && (
-          <div className="space-y-5 text-xs text-slate-300">
-            {/* Header info */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-slate-900/70 border border-slate-800">
+          <div className="space-y-4 text-xs text-slate-700 dark:text-slate-300">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
               <div>
-                <span className="text-[10px] text-slate-400 uppercase">Customer</span>
-                <p className="font-semibold text-white mt-0.5">{detailSub.customer?.name}</p>
+                <span className="text-[10px] text-slate-500 uppercase">Customer</span>
+                <p className="font-semibold text-slate-900 dark:text-white mt-0.5">
+                  {detailSub.customer?.name}
+                </p>
                 <p className="text-[11px] text-slate-400">{detailSub.customer?.email}</p>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 uppercase">Status</span>
+                <span className="text-[10px] text-slate-500 uppercase">Status</span>
                 <div className="mt-1">
                   <Badge status={detailSub.status} />
                 </div>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 uppercase">Start & Expiry</span>
-                <p className="font-medium text-white mt-0.5">
+                <span className="text-[10px] text-slate-500 uppercase">Term Dates</span>
+                <p className="font-medium text-slate-900 dark:text-white mt-0.5">
                   {new Date(detailSub.startDate).toLocaleDateString()}
                 </p>
                 <p className="text-slate-400 text-[11px]">
@@ -398,44 +357,42 @@ export const Subscriptions = () => {
                 </p>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 uppercase">Payment Terms</span>
-                <p className="font-semibold text-white mt-0.5 uppercase">
+                <span className="text-[10px] text-slate-500 uppercase">Payment Terms</span>
+                <p className="font-semibold text-slate-900 dark:text-white mt-0.5 uppercase">
                   {detailSub.paymentTerms}
                 </p>
               </div>
             </div>
 
-            {/* Line items table */}
+            {/* Line items */}
             <div>
-              <h4 className="font-bold text-white mb-2">Contract Line Items</h4>
-              <div className="rounded-xl border border-slate-800 overflow-hidden bg-slate-900/40">
+              <h4 className="font-semibold text-slate-900 dark:text-white mb-2">Contract Items</h4>
+              <div className="rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b border-slate-800 bg-slate-900 text-[10px] text-slate-400 uppercase">
-                      <th className="p-2.5">Item</th>
-                      <th className="p-2.5">Qty</th>
-                      <th className="p-2.5">Unit Price</th>
-                      <th className="p-2.5">Taxes</th>
-                      <th className="p-2.5 text-right">Total</th>
+                    <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-[10px] text-slate-500 uppercase">
+                      <th className="p-2">Item</th>
+                      <th className="p-2">Qty</th>
+                      <th className="p-2">Unit Price</th>
+                      <th className="p-2">Tax</th>
+                      <th className="p-2 text-right">Total</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 text-xs">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                     {(detailSub.lines || []).map((l, i) => (
                       <tr key={i}>
-                        <td className="p-2.5">
-                          <span className="font-semibold text-white">
-                            {l.product?.name || detailSub.plan?.name || 'Software Subscription'}
-                          </span>
+                        <td className="p-2 font-medium text-slate-900 dark:text-white">
+                          {l.product?.name || detailSub.plan?.name || 'Software Subscription'}
                           {l.variantName && (
-                            <span className="block text-[11px] text-brand-400">
-                              Variant: {l.variantName} (+${l.variantExtraPrice})
+                            <span className="block text-[11px] text-blue-600 dark:text-blue-400">
+                              {l.variantName} (+${l.variantExtraPrice})
                             </span>
                           )}
                         </td>
-                        <td className="p-2.5 font-mono">{l.quantity}</td>
-                        <td className="p-2.5 font-mono">${l.unitPrice?.toFixed(2)}</td>
-                        <td className="p-2.5 font-mono">${l.taxAmount?.toFixed(2)}</td>
-                        <td className="p-2.5 font-mono font-bold text-right text-white">
+                        <td className="p-2 font-mono">{l.quantity}</td>
+                        <td className="p-2 font-mono">${l.unitPrice?.toFixed(2)}</td>
+                        <td className="p-2 font-mono">${l.taxAmount?.toFixed(2)}</td>
+                        <td className="p-2 font-mono font-semibold text-right text-slate-900 dark:text-white">
                           ${l.amount?.toFixed(2)}
                         </td>
                       </tr>
@@ -444,24 +401,23 @@ export const Subscriptions = () => {
                 </table>
               </div>
 
-              {/* Financial summary */}
               <div className="mt-3 flex justify-end">
-                <div className="w-64 space-y-1 text-right">
-                  <div className="flex justify-between text-slate-400">
+                <div className="w-56 space-y-1 text-right text-xs">
+                  <div className="flex justify-between text-slate-500">
                     <span>Subtotal:</span>
                     <span>${detailSub.subtotal?.toFixed(2)}</span>
                   </div>
                   {detailSub.discountAmount > 0 && (
-                    <div className="flex justify-between text-emerald-400">
+                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
                       <span>Discount:</span>
                       <span>-${detailSub.discountAmount?.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-slate-400">
-                    <span>Tax Total:</span>
+                  <div className="flex justify-between text-slate-500">
+                    <span>Taxes:</span>
                     <span>${detailSub.taxTotal?.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between font-bold text-sm text-white pt-1 border-t border-slate-800">
+                  <div className="flex justify-between font-bold text-slate-900 dark:text-white pt-1 border-t border-slate-200 dark:border-slate-800">
                     <span>Total Amount:</span>
                     <span>${detailSub.totalAmount?.toFixed(2)}</span>
                   </div>
@@ -469,27 +425,24 @@ export const Subscriptions = () => {
               </div>
             </div>
 
-            {/* Status History Audit Log */}
+            {/* Audit Log */}
             <div>
-              <h4 className="font-bold text-white mb-2 flex items-center gap-1.5">
-                <History size={14} className="text-brand-400" />
-                <span>Status Flow Audit Trail</span>
+              <h4 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-1.5">
+                <History size={13} className="text-slate-500" />
+                <span>Status History Audit Trail</span>
               </h4>
-              <div className="space-y-2 p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div className="space-y-1.5 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px]">
                 {(detailSub.statusHistory || []).map((h, i) => (
-                  <div key={i} className="flex items-start gap-2.5 text-[11px]">
-                    <div className="mt-1 h-2 w-2 rounded-full bg-brand-400" />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-200">
-                          {h.fromStatus} → {h.toStatus}
-                        </span>
-                        <span className="text-slate-500 font-mono">
-                          {new Date(h.timestamp).toLocaleString()}
-                        </span>
-                      </div>
-                      <p className="text-slate-400">{h.reason}</p>
+                  <div key={i} className="flex items-start justify-between">
+                    <div>
+                      <span className="font-medium text-slate-800 dark:text-slate-200">
+                        {h.fromStatus} → {h.toStatus}
+                      </span>
+                      <p className="text-slate-500">{h.reason}</p>
                     </div>
+                    <span className="text-slate-400 font-mono text-[10px]">
+                      {new Date(h.timestamp).toLocaleString()}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -498,28 +451,28 @@ export const Subscriptions = () => {
         )}
       </Modal>
 
-      {/* Status Transition Modal */}
+      {/* Transition Modal */}
       <Modal
         isOpen={!!transitionModalSub}
         onClose={() => setTransitionModalSub(null)}
-        title={`Transition Status for ${transitionModalSub?.subscriptionNumber}`}
+        title={`Transition ${transitionModalSub?.subscriptionNumber}`}
         maxWidth="max-w-md"
       >
-        <div className="space-y-4">
-          <p className="text-xs text-slate-300">
-            Current Status: <Badge status={transitionModalSub?.status} />
+        <div className="space-y-3.5">
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            Current: <Badge status={transitionModalSub?.status} />
           </p>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Select Target Status
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Target Status
             </label>
             <select
               value={targetStatus}
               onChange={(e) => setTargetStatus(e.target.value)}
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white focus:outline-none focus:border-brand-500"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
             >
-              <option value="">-- Choose Target Status --</option>
+              <option value="">-- Choose Status --</option>
               {transitionModalSub?.status === 'Draft' && (
                 <>
                   <option value="Quotation">Quotation</option>
@@ -558,49 +511,51 @@ export const Subscriptions = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Reason / Audit Note
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Audit Note
             </label>
             <textarea
-              rows="3"
+              rows="2"
               value={transitionReason}
               onChange={(e) => setTransitionReason(e.target.value)}
-              placeholder="e.g., Quotation signed by customer, activating service..."
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white focus:outline-none focus:border-brand-500"
+              placeholder="Reason for status change..."
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
             />
           </div>
 
           <button
             onClick={handleStatusTransition}
             disabled={!targetStatus || transitionLoading}
-            className="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors disabled:opacity-40"
+            className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors disabled:opacity-40"
           >
-            {transitionLoading ? 'Processing Transition...' : 'Execute Status Transition'}
+            {transitionLoading ? 'Updating...' : 'Execute Transition'}
           </button>
         </div>
       </Modal>
 
-      {/* Create Subscription Modal */}
+      {/* Create Modal */}
       <Modal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        title="Create New Subscription"
-        maxWidth="max-w-xl"
+        title="Create Subscription"
+        maxWidth="max-w-md"
       >
-        <form onSubmit={handleCreateSubmit} className="space-y-4">
+        <form onSubmit={handleCreateSubmit} className="space-y-3.5">
           {createError && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs">
               {createError}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Customer *</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Customer *
+            </label>
             <select
               required
               value={formCustomer}
               onChange={(e) => setFormCustomer(e.target.value)}
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             >
               {customers.map((c) => (
                 <option key={c._id} value={c._id}>
@@ -611,32 +566,32 @@ export const Subscriptions = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Load from Quotation Template (Optional)
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              From Quotation Template (Optional)
             </label>
             <select
               value={formTemplate}
               onChange={(e) => handleTemplateSelect(e.target.value)}
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             >
-              <option value="">-- None (Configure Plan Directly) --</option>
+              <option value="">-- Direct Plan Selection --</option>
               {templates.map((t) => (
                 <option key={t._id} value={t._id}>
-                  {t.name} ({t.validityDays} days validity)
+                  {t.name}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Subscription Plan *
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Plan *
             </label>
             <select
               required
               value={formPlan}
               onChange={(e) => setFormPlan(e.target.value)}
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             >
               {plans.map((p) => (
                 <option key={p._id} value={p._id}>
@@ -647,27 +602,25 @@ export const Subscriptions = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Discount Code (e.g. LAUNCH20)
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Discount Code (Optional)
             </label>
             <input
               type="text"
               value={formDiscountCode}
               onChange={(e) => setFormDiscountCode(e.target.value.toUpperCase())}
-              placeholder="ENTERPRISE150"
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs font-mono text-white"
+              placeholder="e.g. LAUNCH20"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs font-mono text-slate-900 dark:text-white"
             />
           </div>
 
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={createLoading}
-              className="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors shadow-lg shadow-brand-500/25 disabled:opacity-50"
-            >
-              {createLoading ? 'Generating Contract...' : 'Create Subscription'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={createLoading}
+            className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors disabled:opacity-50"
+          >
+            {createLoading ? 'Creating...' : 'Create Subscription'}
+          </button>
         </form>
       </Modal>
     </div>

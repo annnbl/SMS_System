@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { Badge } from './Badge';
-import { Layers, LogOut, User as UserIcon, Bell, ChevronDown } from 'lucide-react';
+import { LogOut, User as UserIcon, ChevronDown, Sun, Moon } from 'lucide-react';
 
 export const Navbar = ({ activeTab, setActiveTab }) => {
   const { user, logout, login } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [showRoleMenu, setShowRoleMenu] = useState(false);
 
   const handleQuickSwitch = async (email, password) => {
@@ -17,55 +19,66 @@ export const Navbar = ({ activeTab, setActiveTab }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80 bg-slate-950/80">
-      <div className="flex h-16 items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-40 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex h-14 items-center justify-between px-4 sm:px-6 max-w-7xl mx-auto">
+        {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white shadow-lg shadow-brand-500/20">
-            <Layers className="h-6 w-6" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-sm">
+            B
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-lg tracking-tight text-white">Brightloop</span>
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">
+              <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white">
+                Brightloop
+              </span>
+              <span className="text-[11px] font-medium px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                 SMS
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 -mt-1 hidden sm:block">Subscription Management Platform</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Light / Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            className="p-2 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+
           {/* Quick Demo Switcher */}
           <div className="relative">
             <button
               onClick={() => setShowRoleMenu(!showRoleMenu)}
-              className="hidden md:flex items-center gap-1.5 text-xs bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-300 transition-colors"
+              className="hidden sm:flex items-center gap-1.5 text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 font-medium transition-colors"
             >
-              <span>Demo Switcher</span>
-              <ChevronDown size={14} />
+              <span>Demo Roles</span>
+              <ChevronDown size={13} />
             </button>
             {showRoleMenu && (
-              <div className="absolute right-0 mt-2 w-56 rounded-xl glass-panel shadow-xl border border-slate-700 p-2 z-50">
-                <div className="text-[11px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider">
-                  Quick Switch Role
+              <div className="absolute right-0 mt-2 w-52 rounded-xl bg-white dark:bg-slate-900 shadow-lg border border-slate-200 dark:border-slate-800 p-1.5 z-50">
+                <div className="text-[10px] font-semibold text-slate-400 px-2.5 py-1 uppercase tracking-wider">
+                  Switch Active Role
                 </div>
                 <button
                   onClick={() => handleQuickSwitch('admin@brightloop.io', 'AdminPassword123!')}
-                  className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-slate-800 text-slate-200 flex items-center justify-between"
+                  className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-between"
                 >
-                  <span>Admin Account</span>
+                  <span>Admin</span>
                   <Badge status="admin">Admin</Badge>
                 </button>
                 <button
                   onClick={() => handleQuickSwitch('staff@brightloop.io', 'StaffPassword123!')}
-                  className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-slate-800 text-slate-200 flex items-center justify-between"
+                  className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-between"
                 >
-                  <span>Staff Account</span>
+                  <span>Staff</span>
                   <Badge status="staff">Staff</Badge>
                 </button>
                 <button
                   onClick={() => handleQuickSwitch('alice@acmecorp.com', 'CustomerPass123!')}
-                  className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-slate-800 text-slate-200 flex items-center justify-between"
+                  className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-between"
                 >
                   <span>Customer (Acme)</span>
                   <Badge status="customer">Customer</Badge>
@@ -74,25 +87,21 @@ export const Navbar = ({ activeTab, setActiveTab }) => {
             )}
           </div>
 
-          {/* User Info */}
-          <div className="flex items-center gap-3 pl-2 border-l border-slate-800">
-            <div className="h-9 w-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 font-semibold text-sm">
-              {user?.name?.charAt(0) || <UserIcon size={16} />}
-            </div>
-            <div className="hidden sm:block text-left">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-white leading-tight">{user?.name}</p>
-                <Badge status={user?.role}>{user?.role}</Badge>
+          {/* User info */}
+          <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
+            <div className="text-right hidden sm:block">
+              <div className="text-xs font-semibold text-slate-900 dark:text-white leading-tight">
+                {user?.name}
               </div>
-              <p className="text-xs text-slate-400 leading-tight truncate max-w-[140px]">{user?.email}</p>
+              <div className="text-[11px] text-slate-500 capitalize">{user?.role}</div>
             </div>
 
             <button
               onClick={logout}
               title="Sign Out"
-              className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors ml-1"
+              className="p-2 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              <LogOut size={18} />
+              <LogOut size={16} />
             </button>
           </div>
         </div>

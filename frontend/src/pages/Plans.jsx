@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { Modal } from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
-import { Calendar, Plus, Check, X, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Edit2, Check, X } from 'lucide-react';
 
 export const Plans = () => {
   const { user } = useAuth();
@@ -106,119 +106,96 @@ export const Plans = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Subscription Plans</h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Configure pricing intervals, lifecycle policies (pause, renew, early close, auto-close)
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Subscription Plans
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Billing periods, renewals, and cancellation policies
           </p>
         </div>
 
         {isAdmin && (
           <button
             onClick={openNewModal}
-            className="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all shadow-lg shadow-brand-500/25 flex items-center gap-2"
+            className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors flex items-center gap-1.5 shadow-sm"
           >
-            <Plus size={16} />
+            <Plus size={15} />
             <span>Create Plan</span>
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {loading ? (
-          <div className="col-span-3 text-center py-12 text-slate-400">Loading plans...</div>
+          <div className="col-span-3 text-center py-8 text-xs text-slate-400">Loading plans...</div>
         ) : plans.length === 0 ? (
-          <div className="col-span-3 text-center py-12 text-slate-400">No plans configured yet.</div>
+          <div className="col-span-3 text-center py-8 text-xs text-slate-400">No plans configured.</div>
         ) : (
           plans.map((p) => (
             <div
               key={p._id}
-              className="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col justify-between hover:border-brand-500/50 transition-all shadow-lg"
+              className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                       {p.code}
                     </span>
-                    <h3 className="text-lg font-bold text-white mt-2">{p.name}</h3>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1.5">{p.name}</h3>
                   </div>
 
                   {isAdmin && (
                     <button
                       onClick={() => openEditModal(p)}
-                      className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+                      className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded"
                     >
-                      <Edit2 size={14} />
+                      <Edit2 size={13} />
                     </button>
                   )}
                 </div>
 
-                <div className="mt-4 flex items-baseline gap-1.5">
-                  <span className="text-3xl font-black text-white">${p.price}</span>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-slate-900 dark:text-white">${p.price}</span>
                   <span className="text-xs text-slate-400 uppercase font-medium">
                     / {p.billingPeriod}
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-400 mt-2 line-clamp-2">
-                  {p.description || 'Flexible subscription contract.'}
+                <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                  {p.description || 'Standard plan.'}
                 </p>
 
-                {/* Plan Lifecycle Policy Matrix */}
-                <div className="mt-5 pt-4 border-t border-slate-800/80 space-y-2 text-xs">
-                  <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                    Plan Policies
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-xs">
+                  <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">
+                    Policies
                   </div>
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span>Auto-close on expiry:</span>
-                    {p.autoCloseOnEnd ? (
-                      <span className="text-emerald-400 flex items-center gap-1">
-                        <Check size={14} /> Yes
-                      </span>
-                    ) : (
-                      <span className="text-slate-500 flex items-center gap-1">
-                        <X size={14} /> No
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
+                    <span>Auto-close on end:</span>
+                    <span className={p.autoCloseOnEnd ? 'text-slate-900 dark:text-white' : 'text-slate-400'}>
+                      {p.autoCloseOnEnd ? 'Yes' : 'No'}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span>Allow early termination:</span>
-                    {p.allowEarlyClose ? (
-                      <span className="text-emerald-400 flex items-center gap-1">
-                        <Check size={14} /> Allowed
-                      </span>
-                    ) : (
-                      <span className="text-slate-500 flex items-center gap-1">
-                        <X size={14} /> Locked
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
+                    <span>Early close:</span>
+                    <span className={p.allowEarlyClose ? 'text-slate-900 dark:text-white' : 'text-slate-400'}>
+                      {p.allowEarlyClose ? 'Allowed' : 'Locked'}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span>Allow pause:</span>
-                    {p.allowPause ? (
-                      <span className="text-emerald-400 flex items-center gap-1">
-                        <Check size={14} /> Allowed
-                      </span>
-                    ) : (
-                      <span className="text-slate-500 flex items-center gap-1">
-                        <X size={14} /> No
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
+                    <span>Pause:</span>
+                    <span className={p.allowPause ? 'text-slate-900 dark:text-white' : 'text-slate-400'}>
+                      {p.allowPause ? 'Allowed' : 'Disabled'}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span>Allow self-renew:</span>
-                    {p.allowRenew ? (
-                      <span className="text-emerald-400 flex items-center gap-1">
-                        <Check size={14} /> Allowed
-                      </span>
-                    ) : (
-                      <span className="text-slate-500 flex items-center gap-1">
-                        <X size={14} /> No
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
+                    <span>Renew:</span>
+                    <span className={p.allowRenew ? 'text-slate-900 dark:text-white' : 'text-slate-400'}>
+                      {p.allowRenew ? 'Allowed' : 'Disabled'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -227,48 +204,53 @@ export const Plans = () => {
         )}
       </div>
 
-      {/* Modal */}
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingPlan ? 'Edit Subscription Plan' : 'Create New Subscription Plan'}
-        maxWidth="max-w-lg"
+        title={editingPlan ? 'Edit Plan' : 'Create Plan'}
+        maxWidth="max-w-md"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs">
               {error}
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Plan Name *</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Plan Name *
+              </label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Enterprise Pro"
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+                className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Code *</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Plan Code *
+              </label>
               <input
                 type="text"
                 required
                 value={formData.code}
                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                 placeholder="ENT-PRO"
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs font-mono text-white"
+                className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs font-mono text-slate-900 dark:text-white"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Base Price ($) *</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Base Price ($) *
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -276,15 +258,17 @@ export const Plans = () => {
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 placeholder="299"
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs font-mono text-white"
+                className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs font-mono text-slate-900 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Billing Period *</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Billing Period *
+              </label>
               <select
                 value={formData.billingPeriod}
                 onChange={(e) => setFormData({ ...formData, billingPeriod: e.target.value })}
-                className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2.5 text-xs text-white"
+                className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
               >
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
@@ -295,28 +279,26 @@ export const Plans = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Description</label>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Description
+            </label>
             <textarea
               rows="2"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Full tier access, priority support..."
-              className="w-full rounded-xl bg-slate-900 border border-slate-700 p-2 text-xs text-white"
+              className="w-full rounded-lg bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white"
             />
           </div>
 
-          {/* Lifecycle Toggles */}
-          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 text-xs">
-            <span className="font-semibold text-slate-300 block mb-1">Lifecycle Configurations:</span>
-
+          <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.autoCloseOnEnd}
                 onChange={(e) => setFormData({ ...formData, autoCloseOnEnd: e.target.checked })}
-                className="rounded border-slate-700 text-brand-600 focus:ring-0"
+                className="rounded border-slate-300 text-blue-600 focus:ring-0"
               />
-              <span className="text-slate-300">Auto-close subscription when expiry date passes</span>
+              <span className="text-slate-700 dark:text-slate-300">Auto-close when expiry date is reached</span>
             </label>
 
             <label className="flex items-center gap-2 cursor-pointer">
@@ -324,9 +306,9 @@ export const Plans = () => {
                 type="checkbox"
                 checked={formData.allowEarlyClose}
                 onChange={(e) => setFormData({ ...formData, allowEarlyClose: e.target.checked })}
-                className="rounded border-slate-700 text-brand-600 focus:ring-0"
+                className="rounded border-slate-300 text-blue-600 focus:ring-0"
               />
-              <span className="text-slate-300">Allow early cancellation before contract term</span>
+              <span className="text-slate-700 dark:text-slate-300">Allow early cancellation</span>
             </label>
 
             <label className="flex items-center gap-2 cursor-pointer">
@@ -334,9 +316,9 @@ export const Plans = () => {
                 type="checkbox"
                 checked={formData.allowPause}
                 onChange={(e) => setFormData({ ...formData, allowPause: e.target.checked })}
-                className="rounded border-slate-700 text-brand-600 focus:ring-0"
+                className="rounded border-slate-300 text-blue-600 focus:ring-0"
               />
-              <span className="text-slate-300">Allow customer / staff to pause subscription</span>
+              <span className="text-slate-700 dark:text-slate-300">Allow pausing contract</span>
             </label>
 
             <label className="flex items-center gap-2 cursor-pointer">
@@ -344,16 +326,16 @@ export const Plans = () => {
                 type="checkbox"
                 checked={formData.allowRenew}
                 onChange={(e) => setFormData({ ...formData, allowRenew: e.target.checked })}
-                className="rounded border-slate-700 text-brand-600 focus:ring-0"
+                className="rounded border-slate-300 text-blue-600 focus:ring-0"
               />
-              <span className="text-slate-300">Allow subscription renewal</span>
+              <span className="text-slate-700 dark:text-slate-300">Allow self-service renewal</span>
             </label>
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors shadow-lg shadow-brand-500/25 disabled:opacity-50"
+            className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition-colors disabled:opacity-50"
           >
             {submitting ? 'Saving...' : editingPlan ? 'Update Plan' : 'Save Plan'}
           </button>

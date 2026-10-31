@@ -72,7 +72,7 @@ export const App = () => {
     activeTab || (role === 'admin' ? 'dashboard' : role === 'staff' ? 'subscriptions' : 'customer-portal');
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
       <Navbar activeTab={effectiveTab} setActiveTab={setActiveTab} />
 
       <div className="flex flex-1">
