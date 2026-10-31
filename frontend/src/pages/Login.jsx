@@ -4,8 +4,8 @@ import { Layers, ArrowRight, Lock, Mail, AlertCircle, ShieldAlert } from 'lucide
 
 export const Login = ({ onSwitchToRegister, onSwitchToForgot }) => {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@brightloop.io');
+  const [password, setPassword] = useState('AdminPassword123!');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
