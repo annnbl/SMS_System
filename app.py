@@ -1,4 +1,3 @@
-
 """Brightloop Subscription Management - v1 (Foundation)
 Run: pip install -r requirements.txt && python app.py
 Admin seed: admin@brightloop.com / Admin@12345
@@ -243,6 +242,10 @@ def add_discount():
 @auth("admin", "staff")
 def list_discounts():
     return jsonify(rows("SELECT * FROM discounts ORDER BY id DESC"))
+
+# ---------- v2 billing ----------
+import billing
+billing.register(app, db, rows, auth, err)
 
 # ---------- web UI ----------
 @app.get("/")
