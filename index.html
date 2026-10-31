@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Brightloop</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{box-sizing:border-box}body{font-family:system-ui,sans-serif;margin:0;background:#f4f6fa;color:#1d2433}
+header{background:#1d2433;color:#fff;padding:12px 24px;display:flex;justify-content:space-between;align-items:center}
+header b{font-size:18px}main{max-width:960px;margin:24px auto;padding:0 16px}
+.card{background:#fff;border-radius:10px;padding:20px;margin-bottom:18px;box-shadow:0 1px 3px #0001}
+input,select,textarea,button{font:inherit;padding:8px 10px;border:1px solid #c8cfdd;border-radius:6px;margin:4px 0;width:100%}
+button{background:#3b5bdb;color:#fff;border:0;cursor:pointer;width:auto;padding:8px 16px}
+button.ghost{background:transparent;color:#fff;border:1px solid #fff6}
+.tabs button{background:#e4e8f2;color:#1d2433;margin-right:6px}.tabs button.on{background:#3b5bdb;color:#fff}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid #e6e9f0;font-size:14px}
+.msg{padding:8px 12px;border-radius:6px;margin:8px 0}.err{background:#ffe3e3;color:#a61e1e}.ok{background:#d3f9d8;color:#2b8a3e}
+.narrow{max-width:400px;margin:60px auto}small{color:#6b7488}
+</style></head><body>
+<header><b>Brightloop Subscriptions</b><span id="who"></span></header>
+<main id="app"></main>
+<script>
+let token=sessionStorage.getItem("t"),me=null,tab="products",cache={};
+const $=id=>document.getElementById(id),v=id=>$(id).value;
+async function api(path,method="GET",body){
+  const r=await fetch("/api/"+path,{method,headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{})},body:body?JSON.stringify(body):undefined});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Error "+r.status);return d}
+function say(t,ok){const m=$("msg");if(m)m.innerHTML=`<div class="msg ${ok?"ok":"err"}">${t}</div>`}
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- auth screens ---------- */
+function authView(mode="login"){
+  const rt=new URLSearchParams(location.search).get("token");
+  if(location.pathname==="/reset"&&rt)mode="reset";
+  const f={login:`<input id="e" placeholder="Email"><input id="p" type="password" placeholder="Password"><button onclick="doLogin()">Log in</button>`,
+   register:`<input id="n" placeholder="Name"><input id="e" placeholder="Email"><input id="p" type="password" placeholder="Password"><small>More than 8 characters, with upper, lower and a special character.</small><br><button onclick="doRegister()">Create account</button>`,
+   forgot:`<input id="e" placeholder="Registered email"><button onclick="doForgot()">Send reset link</button>`,
+   reset:`<input id="p" type="password" placeholder="New password"><button onclick="doReset('${esc(rt)}')">Set password</button>`}[mode];
+  $("app").innerHTML=`<div class="card narrow"><h2>${mode[0].toUpperCase()+mode.slice(1)}</h2><div id="msg"></div>${f}
+  <p><small>${["login","register","forgot"].filter(m=>m!==mode).map(m=>`<a href="#" onclick="authView('${m}');return false">${m}</a>`).join(" &middot; ")}</small></p></div>`}
+async function doLogin(){try{const d=await api("login","POST",{email:v("e"),password:v("p")});token=d.token;sessionStorage.setItem("t",token);boot()}catch(e){say(e.message)}}
+async function doRegister(){try{await api("register","POST",{name:v("n"),email:v("e"),password:v("p")});authView("login");say("Account created. Please log in.",1)}catch(e){say(e.message)}}
+async function doForgot(){try{const d=await api("forgot","POST",{email:v("e")});say(d.message+" (v1: link is printed in the server terminal)",1)}catch(e){say(e.message)}}
+async function doReset(t){try{await api("reset","POST",{token:t,password:v("p")});history.replaceState(0,"","/");authView("login");say("Password updated. Log in.",1)}catch(e){say(e.message)}}
+function logout(){sessionStorage.removeItem("t");token=null;me=null;$("who").innerHTML="";authView()}
+
+/* ---------- main app ---------- */
+async function boot(){
+  if(!token)return authView();
+  try{me=await api("me")}catch{return logout()}
+  $("who").innerHTML=`${esc(me.email)} (${me.role}) <button class="ghost" onclick="logout()">Log out</button>`;
+  if(me.role==="customer"){$("app").innerHTML=`<div class="card"><h2>Welcome</h2><p>Your subscriptions and invoices will appear here in the next version.</p></div>`;return}
+  show(tab)}
+async function show(t){
+  tab=t;const admin=me.role==="admin",tabs=["products","plans","discounts",...(admin?["staff"]:[])];
+  $("app").innerHTML=`<div class="tabs">${tabs.map(x=>`<button class="${x===t?"on":""}" onclick="show('${x}')">${x[0].toUpperCase()+x.slice(1)}</button>`).join("")}</div><div id="msg"></div><div id="body"></div>`;
+  if(t==="staff")return $("body").innerHTML=staffForm();
+  const [products,plans,discounts]=await Promise.all([api("products"),api("plans"),api("discounts")]);cache={products,plans,discounts};
+  $("body").innerHTML=({products:productsView,plans:plansView,discounts:discountsView})[t](admin)}
+const pOpts=(blank)=>(blank?`<option value="">${blank}</option>`:"")+cache.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");
+const table=(h,r)=>`<table><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${r.map(c=>`<tr>${c.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${h.length}"><small>Nothing yet</small></td></tr>`}</table>`;
+
+function productsView(a){return (a?`<div class="card"><h3>New product</h3><div class="row"><input id="pn" placeholder="Name"><input id="pt" placeholder="Type (e.g. software)"><input id="ps" type="number" placeholder="Sales price"><input id="pc" type="number" placeholder="Cost price"></div>
+<input id="pno" placeholder="Notes"><textarea id="pv" rows="3" placeholder="Variants, one per line:  Attribute:Value:ExtraPrice   e.g.  Brand:Odoo:560"></textarea><button onclick="addProduct()">Add product</button></div>`:"")+
+`<div class="card"><h3>Products</h3>${table(["Name","Type","Sales","Cost","Variants"],cache.products.map(p=>[esc(p.name),esc(p.type),p.sales_price,p.cost_price,p.variants.map(x=>`${esc(x.attribute)}: ${esc(x.value)} (+${x.extra_price})`).join("<br>")]))}</div>`}
+async function addProduct(){try{
+  const variants=v("pv").split("\n").filter(l=>l.trim()).map(l=>{const[a,b,c]=l.split(":");return{attribute:a.trim(),value:(b||"").trim(),extra_price:+c||0}});
+  await api("products","POST",{name:v("pn"),type:v("pt"),sales_price:+v("ps"),cost_price:+v("pc")||0,notes:v("pno"),variants});await show("products");say("Product added",1)}catch(e){say(e.message)}}
+
+function plansView(a){return (a?`<div class="card"><h3>New plan</h3><div class="row"><select id="lp">${pOpts()}</select><input id="ln" placeholder="Plan name"><input id="lpr" type="number" placeholder="Price">
+<select id="lb"><option>daily</option><option>weekly</option><option selected>monthly</option><option>yearly</option></select><input id="lq" type="number" placeholder="Min quantity" value="1"></div><button onclick="addPlan()">Add plan</button></div>`:"")+
+`<div class="card"><h3>Plans</h3>${table(["Plan","Product","Price","Billing","Min qty"],cache.plans.map(p=>[esc(p.name),esc((cache.products.find(x=>x.id===p.product_id)||{}).name),p.price,p.billing_period,p.min_quantity]))}</div>`}
+async function addPlan(){try{await api("plans","POST",{product_id:+v("lp"),name:v("ln"),price:+v("lpr"),billing_period:v("lb"),min_quantity:+v("lq")||1});await show("plans");say("Plan added",1)}catch(e){say(e.message)}}
+
+function discountsView(a){return (a?`<div class="card"><h3>New discount</h3><div class="row"><input id="dn" placeholder="Name"><select id="dk"><option value="percent">Percent</option><option value="fixed">Fixed amount</option></select><input id="dv" type="number" placeholder="Value">
+<input id="dma" type="number" placeholder="Min purchase"><input id="dmq" type="number" placeholder="Min quantity"><input id="ds" type="date"><input id="de" type="date"><input id="du" type="number" placeholder="Max uses"><select id="dp">${pOpts("Whole subscription")}</select></div><button onclick="addDiscount()">Add discount</button></div>`:"")+
+`<div class="card"><h3>Discounts</h3>${table(["Name","Type","Value","Min","Dates","Used"],cache.discounts.map(d=>[esc(d.name),d.kind,d.value,`${d.min_amount||0} / ${d.min_quantity||0} qty`,`${d.start_date||"-"} to ${d.end_date||"-"}`,`${d.times_used}/${d.max_uses??"&infin;"}`]))}</div>`}
+async function addDiscount(){try{await api("discounts","POST",{name:v("dn"),kind:v("dk"),value:+v("dv"),min_amount:+v("dma")||0,min_quantity:+v("dmq")||0,start_date:v("ds")||null,end_date:v("de")||null,max_uses:+v("du")||null,product_id:+v("dp")||null});await show("discounts");say("Discount added",1)}catch(e){say(e.message)}}
+
+function staffForm(){return `<div class="card"><h3>Add staff member</h3><small>Only admins can do this.</small><div class="row"><input id="sn" placeholder="Name"><input id="se" placeholder="Email"><input id="sp" type="password" placeholder="Temporary password"></div><button onclick="addStaff()">Add staff</button></div>`}
+async function addStaff(){try{await api("staff","POST",{name:v("sn"),email:v("se"),password:v("sp")});say("Staff member added",1)}catch(e){say(e.message)}}
+boot();
+</script></body></html>
